@@ -287,17 +287,17 @@ function showResults() {
   // Send to Google Sheet
 fetch("https://script.google.com/macros/s/AKfycbyAhPu6eyQpUB-QMj4dpwqS8ZglV_ImwsP0O3D91lseMIJeputgylfFnA5fyXqKMHkw/exec", {
   method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
   body: JSON.stringify({
     name: studentName,
     score: score,
     timeTaken: totalTime,
     answers: answers
-  }),
-  headers: {
-    "Content-Type": "application/json"
-  }
+  })
 })
-.then(response => response.text())
+.then(response => response.json())
 .then(data => {
   console.log("✅ Google Sheet response:", data);
 })
@@ -308,5 +308,3 @@ fetch("https://script.google.com/macros/s/AKfycbyAhPu6eyQpUB-QMj4dpwqS8ZglV_Imws
 </script>
 </body>
 </html>
-
-
