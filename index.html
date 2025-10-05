@@ -284,26 +284,22 @@ function showResults() {
     return selected.join("|"); // e.g. "0|2"
   });
 
-  // Send to Google Sheet
-fetch("https://script.google.com/macros/s/AKfycbyAhPu6eyQpUB-QMj4dpwqS8ZglV_ImwsP0O3D91lseMIJeputgylfFnA5fyXqKMHkw/exec", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    name: studentName,
-    score: score,
-    timeTaken: totalTime,
-    answers: answers
-  })
-})
-.then(response => response.json())
-.then(data => {
-  console.log("✅ Google Sheet response:", data);
-})
-.catch(error => {
-  console.error("❌ Google Sheet error:", error);
-});
+  // Build Google Form pre-fill URL
+  const baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSdHPG2T0H-HUtx7liqIcM4XchZB34anyYTJhlbb3Z4qD1oKrg/viewform";
+
+  const params = new URLSearchParams({
+    "entry.2061880624": studentName,
+    "entry.140635235": score,
+    "entry.820410361": totalTime,
+    "entry.865612145": answers.join("|")
+  });
+
+  const prefillURL = `${baseURL}?${params.toString()}`;
+
+  // Redirect after 3 seconds so student sees their results first
+  setTimeout(() => {
+    window.location.href = prefillURL;
+  }, 3000);
 }
 </script>
 </body>
