@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seed Germination Reasoning Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    font-size: 18px;
+    color: #222;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  h1, h2 {
+    text-align: center;
+  }
+  .question {
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+  }
+  .question.active {
+    opacity: 1;
+  }
+  button {
+    font-size: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2196f3;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #1976d2;
+  }
+  .answers label {
+    display: block;
+    margin: 8px 0;
+  }
+  .hidden {
+    display: none;
+  }
+  .timers {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Seed Germination Reasoning Quiz</h1>
+  <div id="intro">
+    <p>Please enter your name:</p>
+    <input type="text" id="studentName" placeholder="Your name" style="font-size:20px; padding:5px;">
+    <p><input type="checkbox" id="honesty"> I confirm that this is my own work.</p>
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <div id="quiz" class="hidden">
+    <div class="timers">
+      <div><strong>Time Elapsed:</strong> <span id="quizTimer">00:00</span></div>
+      <div><strong>Current Time:</strong> <span id="realClock">--:--:--</span></div>
+    </div>
+    <div id="questionContainer" class="question"></div>
+    <button id="nextBtn" onclick="nextQuestion()">Next</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <h2>Quiz Completed!</h2>
+    <p id="studentResult"></p>
+  </div>
+</div>
+
+<script>
+const quizTitle = "Seed Germination Reasoning Quiz";
+
+const questions = [
+  {
+    q: `<strong>Example Argument:</strong><br><br>
+        Claim (Conclusion): Students should wear school uniforms.<br>
+        Premise 1: Uniforms help reduce bullying because everyone dresses the same.<br>
+        Premise 2: Uniforms save time in the morning since students don’t have to decide what to wear.<br><br>
+        <em>Because uniforms reduce bullying and save time, therefore students should wear school uniforms.</em><br><br>
+        <strong>Question 1:</strong> What is the conclusion (claim) of this argument?`,
+    options: [
+      "Uniforms help reduce bullying",
+      "Students should wear school uniforms",
+      "Uniforms save time in the morning",
+      "Students should choose their own clothes"
+    ],
+    correct: [1]
+  },
+  {
+    q: `<strong>Question 2:</strong> What are the premises (reasons) supporting the claim?`,
+    options: [
+      "Uniforms are expensive",
+      "Uniforms reduce bullying and save time",
+      "Students dislike uniforms",
+      "Uniforms are fashionable"
+    ],
+    correct: [1]
+  },
+  {
+    q: `<strong>Note:</strong> From this point onward, one or more answers may be correct. Please read each question carefully and select all that apply.`,
+    options: [],
+    correct: []
+  },
+  {
+    q: "1. A student says: ‘Seeds need water to germinate because water starts the chemical reactions in the seed.’ What is the claim?",
+    options: ["Seeds need water to germinate", "Water starts chemical reactions", "Seeds cannot survive without water", "Seeds grow into plants"],
+    correct: [0]
+  },
+  {
+    q: "2. Which of these are reasons in an argument?",
+    options: ["Water starts the reactions", "Seeds absorb water", "Germination needs enzymes", "Therefore, seeds need water"],
+    correct: [0,2]
+  },
+  {
+    q: "3. What is the conclusion in this argument: ‘Seeds kept in darkness do not grow. Light helps plants grow. So, light is needed for germination.’",
+    options: ["Seeds kept in darkness do not grow", "Light helps plants grow", "Light is needed for germination", "Plants use light for photosynthesis"],
+    correct: [2]
+  },
+  {
+    q: "4. A student says: ‘Acid damages seeds, so they can’t grow.’ Is this a good argument?",
+    options: ["Yes, if evidence supports that acid damages seeds", "No, it’s only a guess", "Yes, because acid is dangerous", "No, because seeds are not living things"],
+    correct: [0]
+  },
+  {
+    q: "5. Which of these are examples of evidence?",
+    options: ["Seeds soaked in acid did not grow", "Seeds need air", "Light helps growth", "Data shows 0% germination in acid"],
+    correct: [0,3]
+  },
+  {
+    q: "6. What is the difference between a reason and evidence?",
+    options: ["Reason explains why, evidence supports it with facts", "Evidence explains why, reason supports it with data", "They are the same", "Reason is always true"],
+    correct: [0]
+  },
+  {
+    q: "7. Identify the claim: ‘Seeds germinate faster in warm places because enzymes work faster at higher temperatures.’",
+    options: ["Seeds germinate faster in warm places", "Because enzymes work faster", "Warmth is not needed", "Seeds need enzymes"],
+    correct: [0]
+  },
+  {
+    q: "8. Which is an example of a weak argument?",
+    options: ["Plants need sunlight, so seeds need sunlight to germinate", "Water triggers enzyme activity, so seeds need water", "Oxygen allows respiration, so seeds need oxygen", "Data shows light not needed for germination"],
+    correct: [0]
+  },
+  {
+    q: "9. Which statements are premises in an argument?",
+    options: ["All plants grow from seeds", "These seeds did not grow", "Therefore, they were not alive", "Seeds need water"],
+    correct: [0,1,3]
+  },
+  {
+    q: "10. A student claims: ‘Seeds in the fridge won’t germinate because it’s too cold.’ What is the conclusion?",
+    options: ["It’s too cold in the fridge", "Seeds in the fridge won’t germinate", "Seeds need warmth", "Fridge is not warm enough"],
+    correct: [1]
+  },
+  {
+    q: "11. Which are examples of assumptions?",
+    options: ["That all seeds behave the same", "That water always triggers germination", "That light always helps growth", "That seeds are alive"],
+    correct: [0,1,2]
+  },
+  {
+    q: "12. A good argument uses:",
+    options: ["Clear claim", "Strong evidence", "Emotional reasons", "Logical links"],
+    correct: [0,1,3]
+  },
+  {
+    q: "13. Which statement contains reasoning?",
+    options: ["Seeds didn’t grow because they had no water", "Seeds didn’t grow", "Seeds had no water", "Seeds are small"],
+    correct: [0]
+  },
+  {
+    q: "14. Identify the conclusion: ‘Seeds need oxygen. They germinate in air, not in water. So, oxygen is needed for germination.’",
+    options: ["Seeds need oxygen", "They germinate in air", "Oxygen is needed for germination", "Seeds grow better in air"],
+    correct: [2]
+  },
+  {
+    q: "15. Which of these shows critical thinking?",
+    options: ["Accepting what others say", "Questioning and checking evidence", "Using emotion to decide", "Ignoring data"],
+    correct: [1]
+  }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let studentName = "";
+let startTime;
+let timerInterval;
+let clockInterval;
+
+function startQuiz() {
+  const nameInput = document.getElementById("studentName").value.trim();
+  const honesty = document.getElementById("honesty").checked;
+  if (!nameInput || !honesty) {
+    alert("Please enter your name and confirm your work.");
+    return;
+  }
+  studentName = nameInput;
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  startTime = new Date();
+  startTimer();
+  startClock();
+  showQuestion();
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    const now = new Date();
+    const elapsed = new Date(now - startTime);
+    const minutes = String(elapsed.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(elapsed.getUTCSeconds()).padStart(2, '0');
+    document.getElementById("quizTimer").textContent = `${minutes}:${seconds}`;
+  }, 1000);
+}
+
+function startClock() {
+  clockInterval = setInterval(() => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    document.getElementById("realClock").textContent = timeString;
+  }, 1000);
+}
+
+function showQuestion() {
+  const q = questions[currentQuestion];
+  const container = document.getElementById("questionContainer");
+  container.classList.remove("active");
+  setTimeout(() => {
+    container.innerHTML = `
+      <h2>${q.q}</h2>
+      <div class="answers">
+        ${q.options.map((opt, i) => `
+          <label><input type="checkbox" name="q${currentQuestion}" value="${i}"> ${opt}</label>
+        `).join("")}
+      </div>
+    `;
+    setTimeout(() => container.classList.add("active"), 100);
+  }, 500);
+}
+
+function nextQuestion() {
+  const selected = Array.from(document.querySelectorAll(`input[name="q${currentQuestion}"]:checked`)).map(e => parseInt(e.value));
+  const correct = questions[currentQuestion].correct;
+  if (arraysEqual(selected.sort(), correct.sort())) score++;
+  currentQuestion++;
+  if (currentQuestion < questions.length) {
+    showQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function arraysEqual(a,b){
+  return a.length === b.length && a.every((v,i)=>v===b[i]);
+}
+
+function showResults() {
+  clearInterval(timerInterval);
+  clearInterval(clockInterval);
+  const totalTime = document.getElementById("quizTimer").textContent;
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("results").classList.remove("hidden");
+  document.getElementById("studentResult").innerText =
+    `${studentName}, your score is ${score} out of ${questions.length} in the "${quizTitle}". You completed the quiz in ${totalTime}.`;
+
+  // Collect answers per question
+  const answers = questions.map((q, i) => {
+    const selected = Array.from(document.querySelectorAll(`input[name="q${i}"]:checked`)).map(e => e.value);
+    return selected.join("|"); // e.g. "0|2"
+  });
+
+  // Send to Google Sheet
+fetch("https://script.google.com/macros/s/AKfycbyAhPu6eyQpUB-QMj4dpwqS8ZglV_ImwsP0O3D91lseMIJeputgylfFnA5fyXqKMHkw/exec", {
+  method: "POST",
+  body: JSON.stringify({
+    name: studentName,
+    score: score,
+    timeTaken: totalTime,
+    answers: answers
+  }),
+  headers: {
+    "Content-Type": "application/json"
+  }
+})
+.then(response => response.text())
+.then(data => {
+  console.log("✅ Google Sheet response:", data);
+})
+.catch(error => {
+  console.error("❌ Google Sheet error:", error);
+});
+}
+</script>
+</body>
+</html>
+
+
